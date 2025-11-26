@@ -33,5 +33,12 @@ To bridge the gap between raw data and analysis, I implemented a strict ETL (Ext
 * **Logic Handling:** I utilized Pandas to programmatically detect and coerce specific errors, such as mapping the mixed-type `COMPAS_Score` to a unified integer scale and enforcing temporal consistency on Date columns.
 * **Storage Strategy:** Instead of relying solely on CSV files, I integrated a **SQLite export step**. The cleaning script now loads the processed data directly into a local database (`probation_data.db`). This decision allows the subsequent analysis phase to utilize SQL queries, mirroring a professional enterprise environment.
 
-## 6. Next Steps: SQL Analysis
-With the data cleaned and stored, the project moves to **Phase 2: Analysis**. I will utilize SQL to query the `probation_data.db` database, focusing on extracting insights regarding recidivism rates across different officer caseloads.
+## 6. Phase 2: Advanced SQL Analysis & Deduplication
+With the database established, I shifted to SQL for high-precision auditing and analysis.
+
+* **Data Quality Audit:** Simple Python deduplication removed exact matches, but deep SQL inspection revealed "fuzzy" duplicates (triplets) where offender IDs matched but data entry dates differed.
+* **Golden Record Architecture:** Instead of destructively deleting rows, I engineered a SQL View (`view_probation_unique`) using Window Functions (`ROW_NUMBER() OVER PARTITION BY`). This programmatic approach guarantees that only the most recent administrative record is used for reporting, without losing the ability to audit historical conflicts.
+* **Business Logic:** I authored complex aggregation queries (`03_recidivism_by_score.sql`) using `CASE` statements to calculate recidivism rates, avoiding common SQL pitfalls like integer division by utilizing conditional floating-point logic.
+
+## 7. Next Steps: Visualization
+With the analytical dataset finalized and validated, the project moves to **Phase 3: Visualization**. I will connect a dashboarding tool to the SQLite database to visualize the trend lines and risk correlations established in Phase 2.

@@ -6,26 +6,26 @@ I initiated this project to build an end-to-end data pipeline that mirrors the c
 ## 2. Architecture & Workflow Decisions
 I deliberately moved away from a single-file approach to a modular architecture to ensure scalability and reproducibility.
 
-* **Modular Separation:** I isolated the workflow into three distinct stages:
-    * `01_data_cleaning/`: Raw ingestion and cleaning logic.
-    * `02_analysis/`: Statistical exploration (EDA).
-    * `03_visualization/`: Final reporting assets.
+* **Modular Separation:** I isolated the workflow into three distinct stages (`01_data_cleaning`, `02_analysis`, `03_visualization`).
+* `01_data_cleaning/`: Raw ingestion and cleaning logic.
+* `02_analysis/`: Statistical exploration (EDA).
+* `03_visualization/`: Final reporting assets.
 * **Data Isolation:** I created a dedicated `04_data/` directory to separate input/output files from code, ensuring that data processing steps are clear and traceable.
 
 ## 3. Data Privacy & Security Implementation
 **Challenge:** Real probation data contains sensitive Personally Identifiable Information (PII) which cannot be hosted on public repositories.
 **Solution:**
-1.  **Git Ignore Strategy:** I configured `.gitignore` to strictly exclude all files within `04_data/raw/` and `04_data/processed/`. This ensures that even if I work with real files locally, they can never be accidentally pushed to GitHub.
-2.  **Synthetic Data Generation:** To allow others to verify my code without compromising privacy, I wrote a Python script (`generate_data.py`) to manufacture a 15,000-row synthetic dataset that mathematically mimics the distribution and errors of real caseloads.
+* **Git Ignore Strategy:** I configured `.gitignore` to strictly exclude all files within `04_data/raw/` and `04_data/processed/`. This ensures that even if I work with real files locally, they can never be accidentally pushed to GitHub.
+* **Synthetic Data Generation:** To allow others to verify my code without compromising privacy, I wrote a Python script (`generate_data.py`) to manufacture a 15,000-row synthetic dataset that mathematically mimics the distribution and errors of real caseloads.
 
 ## 4. Engineering "Dirty" Data
-To prove my data cleaning capabilities, I did not want a perfect dataset. I engineered specific data quality issues into the generation script to simulate a broken ETL pipeline:
+To prove my data cleaning capabilities, I did not want a perfect dataset. I engineered specific data quality issues into the generation script to simulate a broken **ETL (Extract, Transform, Load)** pipeline:
 * **Type Inconsistencies:** I forced the `COMPAS_Score` column to mix integers (1-10) with text strings ("High", "Med") to require robust type coercion.
 * **Logical Fallacies:** I introduced date errors where `Actual_Discharge_Date` occurs *before* the `Sentence_Date`.
 * **Clerical Errors:** I injected typos into categorical variables (e.g., "Revoked" vs "Revoked - Tech") and added duplicate rows to simulate data entry mistakes.
 
 ## 5. Pipeline Execution & SQL Integration
-To bridge the gap between raw data and analysis, I implemented a strict ETL (Extract, Transform, Load) process in `01_data_cleaning/clean_probation_data.py`.
+To bridge the gap between raw data and analysis, I implemented a strict **ETL** process in `01_data_cleaning/clean_probation_data.py`.
 
 * **Logic Handling:** I utilized Pandas to programmatically detect and coerce specific errors, such as mapping the mixed-type `COMPAS_Score` to a unified integer scale and enforcing temporal consistency on Date columns.
 * **Storage Strategy:** Instead of relying solely on CSV files, I integrated a **SQLite export step**. The cleaning script now loads the processed data directly into a local database (`probation_data.db`). This decision allows the subsequent analysis phase to utilize SQL queries, mirroring a professional enterprise environment.
@@ -52,13 +52,18 @@ To finalize the pipeline, I built an interactive dashboard to present the analyt
 * **Enterprise Connectivity:** Since Power BI lacks native SQLite support, I configured a system-level **ODBC Data Source (DSN)** to bridge the gap, simulating a real-world connection to an on-premise SQL server.
 * **DAX Implementation:** I wrote custom DAX measures (using `CALCULATE` and `DIVIDE`) to compute Recidivism Rates dynamically at the row level, ensuring accurate aggregation across different cuts of the data (e.g., by Officer vs. by Risk Score).
 * **Visual Data Story:** The dashboard confirms the "God Mode" trend engineered in Phase 2.
-    * **Trend Line:** Validates the strong positive correlation between Risk Score (1-10) and Recidivism Rate.
-    * **100% Stacked Bar:** Visually demonstrates how the volume of "Revoked" outcomes expands as risk profiles increase.
+* **Trend Line:** Validates the strong positive correlation between Risk Score (1-10) and Recidivism Rate.
+* **100% Stacked Bar:** Visually demonstrates how the volume of "Revoked" outcomes expands as risk profiles increase.
 
 ### Final Dashboard Artifact
 ![Power BI Dashboard](03_visualization/dashboard_screenshot.png)
 
-## 9. Project Conclusion
+## 9. Tools & Technologies Used
+* **Languages:** Python (Pandas/NumPy), SQL (SQLite), DAX.
+* **Visualization:** Power BI Desktop (Connected via ODBC).
+* **AI Assistance:** LLMs were utilized for synthetic data pattern generation ("God Mode" logic) and documentation formatting.
+
+## 10. Project Conclusion
 This portfolio project successfully demonstrates a full-stack data capability:
 1.  **Engineered** a synthetic dataset with complex "dirty" attributes to mimic real-world administrative logs.
 2.  **Architected** a secure, modular ETL pipeline in Python to clean and standardize mixed-type data.

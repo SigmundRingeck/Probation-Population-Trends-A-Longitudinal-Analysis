@@ -46,7 +46,24 @@ While Phase 2 validated the SQL logic, the initial synthetic data unexpectedly s
 * **Correction:** I engineered a secondary update to `generate_data.py`, implementing a **probability weighting algorithm** (Base 5% Risk + Score * 8.5%) to programmatically force a clear correlation between the Risk Score and Recidivism.
 * **Validation:** Final SQL query validation confirmed the fix, showing the recidivism rate now rising sharply from **~15% (Score 1)** to **~90% (Score 10)**. This confirms the business logic is sound and the data is fully ready for presentation.
 
-## 8. Next Steps: Phase 3 (Visualization)
-With the cleaned data finalized, committed, and validated, the project moves to the final stage: **Data Storytelling**.
+## 8. Phase 3: Visualization & Reporting
+**Status:** Complete
+**Tooling:** Power BI Desktop via ODBC Driver (SQLite Connection)
 
-The immediate next task is to connect the visualization tool (Tableau/Power BI/Python) to the SQLite file located at `04_data/processed/probation_data.db` and begin building the dashboard assets to visualize the trend lines established in the previous phase.
+To finalize the pipeline, I built an interactive dashboard to present the analytical findings to non-technical stakeholders.
+
+* **Enterprise Connectivity:** Since Power BI lacks native SQLite support, I configured a system-level **ODBC Data Source (DSN)** to bridge the gap, simulating a real-world connection to an on-premise SQL server.
+* **DAX Implementation:** I wrote custom DAX measures (using `CALCULATE` and `DIVIDE`) to compute Recidivism Rates dynamically at the row level, ensuring accurate aggregation across different cuts of the data (e.g., by Officer vs. by Risk Score).
+* **Visual Data Story:** The dashboard confirms the "God Mode" trend engineered in Phase 2.
+    * **Trend Line:** Validates the strong positive correlation between Risk Score (1-10) and Recidivism Rate.
+    * **100% Stacked Bar:** Visually demonstrates how the volume of "Revoked" outcomes expands as risk profiles increase.
+
+### Final Dashboard Artifact
+![Power BI Dashboard](03_visualization/dashboard_screenshot.png)
+
+## 9. Project Conclusion
+This portfolio project successfully demonstrates a full-stack data capability:
+1.  **Engineered** a synthetic dataset with complex "dirty" attributes to mimic real-world administrative logs.
+2.  **Architected** a secure, modular ETL pipeline in Python to clean and standardize mixed-type data.
+3.  **Audited** records using advanced SQL Window Functions to resolve fuzzy duplicates.
+4.  **Delivered** actionable business intelligence via a professional Power BI dashboard.
